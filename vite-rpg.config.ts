@@ -2,14 +2,11 @@ import { resolve } from "node:path";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  root: resolve(__dirname),
-  base: "./",
+  root: resolve(__dirname, "examples/open-world-rpg"),
+  base: "/spark/rpg/",
   build: {
-    outDir: resolve(__dirname, "examples/open-world-rpg/dist"),
+    outDir: resolve(__dirname, "dist-rpg"),
     emptyOutDir: true,
-    rollupOptions: {
-      input: resolve(__dirname, "examples/open-world-rpg/index.html"),
-    },
   },
   resolve: {
     alias: {
