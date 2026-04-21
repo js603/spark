@@ -5,24 +5,64 @@ import { getTerrainHeight } from "./world.js";
 
 export const ENEMY_DEFS = {
   slime: {
-    name: "Slime", color: 0x44cc44, emissive: 0x116611, size: 0.5,
-    maxHp: 30, atk: 5, def: 0, expReward: 15, goldReward: 3,
-    speed: 1.8, aggroRange: 8, attackRange: 1.6, attackCooldown: 2.0,
+    name: "Slime",
+    color: 0x44cc44,
+    emissive: 0x116611,
+    size: 0.5,
+    maxHp: 30,
+    atk: 5,
+    def: 0,
+    expReward: 15,
+    goldReward: 3,
+    speed: 1.8,
+    aggroRange: 8,
+    attackRange: 1.6,
+    attackCooldown: 2.0,
   },
   wolf: {
-    name: "Wolf", color: 0xcc7733, emissive: 0x441100, size: 0.65,
-    maxHp: 60, atk: 12, def: 2, expReward: 30, goldReward: 5,
-    speed: 3.8, aggroRange: 14, attackRange: 2.0, attackCooldown: 1.4,
+    name: "Wolf",
+    color: 0xcc7733,
+    emissive: 0x441100,
+    size: 0.65,
+    maxHp: 60,
+    atk: 12,
+    def: 2,
+    expReward: 30,
+    goldReward: 5,
+    speed: 3.8,
+    aggroRange: 14,
+    attackRange: 2.0,
+    attackCooldown: 1.4,
   },
   skeleton: {
-    name: "Skeleton", color: 0xddddcc, emissive: 0x222211, size: 0.65,
-    maxHp: 80, atk: 18, def: 5, expReward: 50, goldReward: 10,
-    speed: 2.2, aggroRange: 11, attackRange: 1.9, attackCooldown: 2.0,
+    name: "Skeleton",
+    color: 0xddddcc,
+    emissive: 0x222211,
+    size: 0.65,
+    maxHp: 80,
+    atk: 18,
+    def: 5,
+    expReward: 50,
+    goldReward: 10,
+    speed: 2.2,
+    aggroRange: 11,
+    attackRange: 1.9,
+    attackCooldown: 2.0,
   },
   darkMage: {
-    name: "Dark Mage", color: 0x8844cc, emissive: 0x220044, size: 0.6,
-    maxHp: 120, atk: 28, def: 3, expReward: 80, goldReward: 20,
-    speed: 2.5, aggroRange: 16, attackRange: 9.0, attackCooldown: 3.0,
+    name: "Dark Mage",
+    color: 0x8844cc,
+    emissive: 0x220044,
+    size: 0.6,
+    maxHp: 120,
+    atk: 28,
+    def: 3,
+    expReward: 80,
+    goldReward: 20,
+    speed: 2.5,
+    aggroRange: 16,
+    attackRange: 9.0,
+    attackCooldown: 3.0,
   },
 };
 
@@ -59,14 +99,20 @@ export class Enemy {
     const eyeGeo = new THREE.SphereGeometry(0.07, 6, 4);
     const eyeMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
     const pupilMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
-    [[-1, 1], [1, 1]].forEach(([sx]) => {
+    for (const [sx] of [
+      [-1, 1],
+      [1, 1],
+    ]) {
       const eye = new THREE.Mesh(eyeGeo, eyeMat);
       eye.position.set(def.size * 0.35 * sx, def.size * 0.3, def.size * 0.87);
       this.mesh.add(eye);
-      const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.04, 5, 4), pupilMat);
+      const pupil = new THREE.Mesh(
+        new THREE.SphereGeometry(0.04, 5, 4),
+        pupilMat,
+      );
       pupil.position.set(0, 0, 0.065);
       eye.add(pupil);
-    });
+    }
 
     // HP bar sprite
     this._initHpBar();
@@ -74,11 +120,15 @@ export class Enemy {
 
   _initHpBar() {
     this._hpCanvas = document.createElement("canvas");
-    this._hpCanvas.width = 80; this._hpCanvas.height = 10;
+    this._hpCanvas.width = 80;
+    this._hpCanvas.height = 10;
     this._hpCtx = this._hpCanvas.getContext("2d");
     this._hpTex = new THREE.CanvasTexture(this._hpCanvas);
 
-    const mat = new THREE.SpriteMaterial({ map: this._hpTex, depthTest: false });
+    const mat = new THREE.SpriteMaterial({
+      map: this._hpTex,
+      depthTest: false,
+    });
     this._hpSprite = new THREE.Sprite(mat);
     this._hpSprite.scale.set(1.8, 0.22, 1);
     this._hpSprite.position.y = this.size + 0.6;
@@ -88,7 +138,8 @@ export class Enemy {
 
   _drawHpBar() {
     const ctx = this._hpCtx;
-    const W = 80, H = 10;
+    const W = 80;
+    const H = 10;
     ctx.clearRect(0, 0, W, H);
     ctx.fillStyle = "#222";
     ctx.fillRect(0, 0, W, H);
@@ -118,7 +169,11 @@ export class Enemy {
     this.state = "idle";
     this.currentHp = this.maxHp;
     const groundY = getTerrainHeight(this.spawnPos.x, this.spawnPos.z);
-    this.mesh.position.set(this.spawnPos.x, groundY + this.size, this.spawnPos.z);
+    this.mesh.position.set(
+      this.spawnPos.x,
+      groundY + this.size,
+      this.spawnPos.z,
+    );
     this.mesh.scale.set(1, 1, 1);
     this.mesh.visible = true;
     this._drawHpBar();
@@ -137,26 +192,36 @@ export class Enemy {
     // ─── State machine ───
     switch (this.state) {
       case "idle":
-        if (distToPlayer < this.aggroRange) { this.state = "chase"; break; }
+        if (distToPlayer < this.aggroRange) {
+          this.state = "chase";
+          break;
+        }
         if (Math.random() < 0.008) {
           this.state = "patrol";
           const a = Math.random() * Math.PI * 2;
           this.patrolTarget = new THREE.Vector3(
             this.spawnPos.x + Math.cos(a) * 6,
             0,
-            this.spawnPos.z + Math.sin(a) * 6
+            this.spawnPos.z + Math.sin(a) * 6,
           );
         }
         break;
 
       case "patrol":
-        if (distToPlayer < this.aggroRange) { this.state = "chase"; break; }
+        if (distToPlayer < this.aggroRange) {
+          this.state = "chase";
+          break;
+        }
         if (this.patrolTarget) {
           const toT = new THREE.Vector3(
-            this.patrolTarget.x - this.mesh.position.x, 0,
-            this.patrolTarget.z - this.mesh.position.z
+            this.patrolTarget.x - this.mesh.position.x,
+            0,
+            this.patrolTarget.z - this.mesh.position.z,
           );
-          if (toT.lengthSq() < 0.4) { this.state = "idle"; break; }
+          if (toT.lengthSq() < 0.4) {
+            this.state = "idle";
+            break;
+          }
           toT.normalize().multiplyScalar(this.speed * 0.5 * delta);
           this.mesh.position.x += toT.x;
           this.mesh.position.z += toT.z;
@@ -164,12 +229,19 @@ export class Enemy {
         break;
 
       case "chase":
-        if (distToPlayer > this.aggroRange * 1.6) { this.state = "idle"; break; }
-        if (distToPlayer < this.attackRange) { this.state = "attack"; break; }
+        if (distToPlayer > this.aggroRange * 1.6) {
+          this.state = "idle";
+          break;
+        }
+        if (distToPlayer < this.attackRange) {
+          this.state = "attack";
+          break;
+        }
         {
           const toP = new THREE.Vector3(
-            playerPos.x - this.mesh.position.x, 0,
-            playerPos.z - this.mesh.position.z
+            playerPos.x - this.mesh.position.x,
+            0,
+            playerPos.z - this.mesh.position.z,
           );
           toP.normalize().multiplyScalar(this.speed * delta);
           this.mesh.position.x += toP.x;
@@ -179,7 +251,10 @@ export class Enemy {
         break;
 
       case "attack":
-        if (distToPlayer > this.attackRange * 1.3) { this.state = "chase"; break; }
+        if (distToPlayer > this.attackRange * 1.3) {
+          this.state = "chase";
+          break;
+        }
         this.mesh.lookAt(playerPos.x, this.mesh.position.y, playerPos.z);
         this.attackTimer -= delta;
         if (this.attackTimer <= 0) {
@@ -190,8 +265,12 @@ export class Enemy {
     }
 
     // Terrain height follow
-    const groundY = getTerrainHeight(this.mesh.position.x, this.mesh.position.z);
-    this.mesh.position.y = groundY + this.size + Math.sin(this.bobT * 2.5) * 0.12;
+    const groundY = getTerrainHeight(
+      this.mesh.position.x,
+      this.mesh.position.z,
+    );
+    this.mesh.position.y =
+      groundY + this.size + Math.sin(this.bobT * 2.5) * 0.12;
 
     // Squish animation when moving
     if (this.state === "chase" || this.state === "attack") {
@@ -207,12 +286,55 @@ export class Enemy {
 // ─── Item Definitions ─────────────────────────────────────────────────────────
 
 export const ITEM_DEFS = {
-  herb:         { name: "Herb",           type: "herb",         color: 0x44ee44, emissive: 0x116611, size: 0.22, shape: "sphere" },
-  healthPotion: { name: "Health Potion",  type: "healthPotion", color: 0xff4444, emissive: 0x881111, size: 0.22, shape: "sphere" },
-  manaPotion:   { name: "Mana Potion",    type: "manaPotion",   color: 0x4466ff, emissive: 0x112288, size: 0.22, shape: "sphere" },
-  gold:         { name: "Gold Coins",     type: "gold",         color: 0xffcc00, emissive: 0x886600, size: 0.28, shape: "torus", amount: 10 },
-  ironSword:    { name: "Iron Sword",     type: "ironSword",    color: 0xaaaacc, emissive: 0x333344, size: 0.35, shape: "box" },
-  ironShield:   { name: "Iron Shield",   type: "ironShield",   color: 0x999999, emissive: 0x222222, size: 0.35, shape: "sphere" },
+  herb: {
+    name: "Herb",
+    type: "herb",
+    color: 0x44ee44,
+    emissive: 0x116611,
+    size: 0.22,
+    shape: "sphere",
+  },
+  healthPotion: {
+    name: "Health Potion",
+    type: "healthPotion",
+    color: 0xff4444,
+    emissive: 0x881111,
+    size: 0.22,
+    shape: "sphere",
+  },
+  manaPotion: {
+    name: "Mana Potion",
+    type: "manaPotion",
+    color: 0x4466ff,
+    emissive: 0x112288,
+    size: 0.22,
+    shape: "sphere",
+  },
+  gold: {
+    name: "Gold Coins",
+    type: "gold",
+    color: 0xffcc00,
+    emissive: 0x886600,
+    size: 0.28,
+    shape: "torus",
+    amount: 10,
+  },
+  ironSword: {
+    name: "Iron Sword",
+    type: "ironSword",
+    color: 0xaaaacc,
+    emissive: 0x333344,
+    size: 0.35,
+    shape: "box",
+  },
+  ironShield: {
+    name: "Iron Shield",
+    type: "ironShield",
+    color: 0x999999,
+    emissive: 0x222222,
+    size: 0.35,
+    shape: "sphere",
+  },
 };
 
 export class Item {
@@ -226,9 +348,18 @@ export class Item {
 
     let geo;
     switch (def.shape) {
-      case "torus": geo = new THREE.TorusGeometry(def.size, 0.1, 6, 14); break;
-      case "box":   geo = new THREE.BoxGeometry(def.size * 0.4, def.size * 1.4, def.size * 0.1); break;
-      default:      geo = new THREE.SphereGeometry(def.size, 8, 6);
+      case "torus":
+        geo = new THREE.TorusGeometry(def.size, 0.1, 6, 14);
+        break;
+      case "box":
+        geo = new THREE.BoxGeometry(
+          def.size * 0.4,
+          def.size * 1.4,
+          def.size * 0.1,
+        );
+        break;
+      default:
+        geo = new THREE.SphereGeometry(def.size, 8, 6);
     }
     const mat = new THREE.MeshLambertMaterial({
       color: def.color,
@@ -252,54 +383,83 @@ export class Item {
 
 export const NPC_DEFS = {
   elder: {
-    id: "elder", name: "Village Elder", bodyColor: 0xffcc44,
+    id: "elder",
+    name: "Village Elder",
+    bodyColor: 0xffcc44,
     dialog: [
       "Greetings, brave adventurer! Our village needs help.",
       "Slimes have been overrunning the surrounding fields.",
       "If you could rid us of 5 Slimes, the village would be most grateful!",
     ],
     quest: {
-      id: "q_slimes", name: "The Slime Problem", type: "kill", target: "slime", goal: 5,
+      id: "q_slimes",
+      name: "The Slime Problem",
+      type: "kill",
+      target: "slime",
+      goal: 5,
       description: "Kill 5 Slimes terrorizing the village outskirts.",
       reward: { gold: 50, exp: 100 },
     },
   },
   healer: {
-    id: "healer", name: "Healer Elara", bodyColor: 0xaaddff,
+    id: "healer",
+    name: "Healer Elara",
+    bodyColor: 0xaaddff,
     dialog: [
       "Welcome, traveler. I tend to the village's sick and wounded.",
       "My medicinal supplies are running dangerously low.",
       "Herbs grow throughout the forest — could you collect 5 for me?",
     ],
     quest: {
-      id: "q_herbs", name: "Herb Collection", type: "collect", target: "herb", goal: 5,
+      id: "q_herbs",
+      name: "Herb Collection",
+      type: "collect",
+      target: "herb",
+      goal: 5,
       description: "Collect 5 Herbs from the forest.",
-      reward: { gold: 0, exp: 80, items: [ITEM_DEFS.healthPotion, ITEM_DEFS.healthPotion] },
+      reward: {
+        gold: 0,
+        exp: 80,
+        items: [ITEM_DEFS.healthPotion, ITEM_DEFS.healthPotion],
+      },
     },
   },
   blacksmith: {
-    id: "blacksmith", name: "Blacksmith Thor", bodyColor: 0xcc6633,
+    id: "blacksmith",
+    name: "Blacksmith Thor",
+    bodyColor: 0xcc6633,
     dialog: [
       "Hail! I'm Thor, finest blacksmith in the region.",
       "Blasted wolves keep attacking my supply wagons from the forest.",
       "Slay 3 Wolves and I'll pay you handsomely. Deal?",
     ],
     quest: {
-      id: "q_wolves", name: "Wolf Hunt", type: "kill", target: "wolf", goal: 3,
+      id: "q_wolves",
+      name: "Wolf Hunt",
+      type: "kill",
+      target: "wolf",
+      goal: 3,
       description: "Kill 3 Wolves threatening the trade routes.",
       reward: { gold: 100, exp: 200 },
     },
   },
   merchant: {
-    id: "merchant", name: "Merchant Pell", bodyColor: 0x44cc44,
+    id: "merchant",
+    name: "Merchant Pell",
+    bodyColor: 0x44cc44,
     dialog: [
       "Greetings! I'm Pell — I trade in rare artifacts and curiosities.",
       "Ancient ruins lie to the north-west, rumored to hold great power.",
       "Reach those ruins and I'll share a legendary weapon I found there!",
     ],
     quest: {
-      id: "q_ruins", name: "The Ancient Ruins", type: "reach",
-      targetX: -60, targetZ: 60, radius: 16, goal: 1,
+      id: "q_ruins",
+      name: "The Ancient Ruins",
+      type: "reach",
+      targetX: -60,
+      targetZ: 60,
+      radius: 16,
+      goal: 1,
       description: "Explore the Ancient Ruins (north-west, beyond the forest).",
       reward: { gold: 0, exp: 150, items: [ITEM_DEFS.ironSword] },
     },
@@ -318,26 +478,37 @@ export class NPC {
 
     // Legs
     const legMat = new THREE.MeshLambertMaterial({ color: 0x334455 });
-    [-0.18, 0.18].forEach((ox) => {
-      const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.8, 6), legMat);
+    for (const ox of [-0.18, 0.18]) {
+      const leg = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.1, 0.1, 0.8, 6),
+        legMat,
+      );
       leg.position.set(ox, 0.4, 0);
       group.add(leg);
-    });
+    }
 
     // Body
-    const bodyMat = new THREE.MeshLambertMaterial({ color: this.def.bodyColor });
-    const body = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.28, 1.1, 8), bodyMat);
+    const bodyMat = new THREE.MeshLambertMaterial({
+      color: this.def.bodyColor,
+    });
+    const body = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.32, 0.28, 1.1, 8),
+      bodyMat,
+    );
     body.position.y = 1.15;
     group.add(body);
 
     // Arms
     const armMat = new THREE.MeshLambertMaterial({ color: this.def.bodyColor });
-    [-0.45, 0.45].forEach((ox) => {
-      const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.7, 6), armMat);
+    for (const ox of [-0.45, 0.45]) {
+      const arm = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.09, 0.09, 0.7, 6),
+        armMat,
+      );
       arm.position.set(ox, 1.1, 0);
       arm.rotation.z = ox < 0 ? 0.4 : -0.4;
       group.add(arm);
-    });
+    }
 
     // Head
     const headMat = new THREE.MeshLambertMaterial({ color: 0xffd4a0 });
@@ -346,7 +517,10 @@ export class NPC {
     group.add(head);
 
     // Quest indicator (bobbing golden orb)
-    const qMat = new THREE.MeshLambertMaterial({ color: 0xffff44, emissive: 0x888800 });
+    const qMat = new THREE.MeshLambertMaterial({
+      color: 0xffff44,
+      emissive: 0x888800,
+    });
     this._questOrb = new THREE.Mesh(new THREE.SphereGeometry(0.18, 8, 6), qMat);
     this._questOrb.position.y = 2.75;
     group.add(this._questOrb);
@@ -361,7 +535,8 @@ export class NPC {
 
   _makeNameLabel() {
     const canvas = document.createElement("canvas");
-    canvas.width = 256; canvas.height = 52;
+    canvas.width = 256;
+    canvas.height = 52;
     const ctx = canvas.getContext("2d");
     ctx.fillStyle = "rgba(0,0,0,0.65)";
     ctx.beginPath();
@@ -383,7 +558,10 @@ export class NPC {
   update(delta) {
     this._bobT += delta;
     // Head bob
-    this.mesh.children[2]?.position && (this.mesh.children[2].position.y = 1.15 + Math.sin(this._bobT * 0.9) * 0.04);
+    if (this.mesh.children[2]?.position) {
+      this.mesh.children[2].position.y =
+        1.15 + Math.sin(this._bobT * 0.9) * 0.04;
+    }
     // Quest orb pulse + spin
     if (this._questOrb) {
       const s = 1 + Math.sin(this._bobT * 2.5) * 0.2;
@@ -392,27 +570,41 @@ export class NPC {
     }
   }
 
-  getDialog() { return this.def.dialog; }
-  getQuest()   { return this.def.quest; }
+  getDialog() {
+    return this.def.dialog;
+  }
+  getQuest() {
+    return this.def.quest;
+  }
 }
 
 // ─── Ruins Landmark ──────────────────────────────────────────────────────────
 
 export function createRuins(scene) {
   const stoneMat = new THREE.MeshLambertMaterial({ color: 0x888877 });
-  const mossMat  = new THREE.MeshLambertMaterial({ color: 0x556644 });
+  const mossMat = new THREE.MeshLambertMaterial({ color: 0x556644 });
 
-  const cx = -60, cz = 60;
+  const cx = -60;
+  const cz = 60;
   const h = getTerrainHeight(cx, cz);
 
   // Broken pillars
-  const pillarPositions = [[-8,0],[-4,4],[0,-5],[5,3],[-6,8],[6,-6],[0,8],[-3,-8]];
+  const pillarPositions = [
+    [-8, 0],
+    [-4, 4],
+    [0, -5],
+    [5, 3],
+    [-6, 8],
+    [6, -6],
+    [0, 8],
+    [-3, -8],
+  ];
   for (const [ox, oz] of pillarPositions) {
     const ph = getTerrainHeight(cx + ox, cz + oz);
     const pillH = 2 + Math.random() * 4;
     const pillar = new THREE.Mesh(
       new THREE.CylinderGeometry(0.55, 0.6, pillH, 8),
-      stoneMat
+      stoneMat,
     );
     pillar.position.set(cx + ox, ph + pillH / 2, cz + oz);
     pillar.rotation.z = (Math.random() - 0.5) * 0.3;
@@ -434,9 +626,15 @@ export function createRuins(scene) {
 
   // Glowing crystal on altar
   const crystalMat = new THREE.MeshLambertMaterial({
-    color: 0xaa44ff, emissive: 0x440088, transparent: true, opacity: 0.85,
+    color: 0xaa44ff,
+    emissive: 0x440088,
+    transparent: true,
+    opacity: 0.85,
   });
-  const crystal = new THREE.Mesh(new THREE.OctahedronGeometry(0.5, 0), crystalMat);
+  const crystal = new THREE.Mesh(
+    new THREE.OctahedronGeometry(0.5, 0),
+    crystalMat,
+  );
   crystal.position.set(cx, altarH + 1.5, cz);
   scene.add(crystal);
 

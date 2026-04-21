@@ -3,33 +3,33 @@
 export class GameUI {
   constructor() {
     this._el = {
-      hpFill:        document.getElementById("hp-fill"),
-      hpText:        document.getElementById("hp-text"),
-      mpFill:        document.getElementById("mp-fill"),
-      mpText:        document.getElementById("mp-text"),
-      expFill:       document.getElementById("exp-fill"),
-      expText:       document.getElementById("exp-text"),
-      levelText:     document.getElementById("level-text"),
-      goldText:      document.getElementById("gold-text"),
-      sprintBar:     document.getElementById("sprint-fill"),
-      minimap:       document.getElementById("minimap"),
-      questLog:      document.getElementById("quest-log"),
-      prompt:        document.getElementById("interact-prompt"),
-      zoneLabel:     document.getElementById("zone-label"),
-      inventory:     document.getElementById("inventory-panel"),
-      invStats:      document.getElementById("inventory-stats"),
-      invItems:      document.getElementById("inventory-items"),
-      dialog:        document.getElementById("dialog-panel"),
-      dialogName:    document.getElementById("dialog-name"),
-      dialogText:    document.getElementById("dialog-text"),
-      dialogQuest:   document.getElementById("dialog-quest"),
-      dialogNext:    document.getElementById("dialog-next"),
-      dialogAccept:  document.getElementById("dialog-accept-quest"),
+      hpFill: document.getElementById("hp-fill"),
+      hpText: document.getElementById("hp-text"),
+      mpFill: document.getElementById("mp-fill"),
+      mpText: document.getElementById("mp-text"),
+      expFill: document.getElementById("exp-fill"),
+      expText: document.getElementById("exp-text"),
+      levelText: document.getElementById("level-text"),
+      goldText: document.getElementById("gold-text"),
+      sprintBar: document.getElementById("sprint-fill"),
+      minimap: document.getElementById("minimap"),
+      questLog: document.getElementById("quest-log"),
+      prompt: document.getElementById("interact-prompt"),
+      zoneLabel: document.getElementById("zone-label"),
+      inventory: document.getElementById("inventory-panel"),
+      invStats: document.getElementById("inventory-stats"),
+      invItems: document.getElementById("inventory-items"),
+      dialog: document.getElementById("dialog-panel"),
+      dialogName: document.getElementById("dialog-name"),
+      dialogText: document.getElementById("dialog-text"),
+      dialogQuest: document.getElementById("dialog-quest"),
+      dialogNext: document.getElementById("dialog-next"),
+      dialogAccept: document.getElementById("dialog-accept-quest"),
       notifications: document.getElementById("notifications"),
-      dmgLayer:      document.getElementById("damage-layer"),
-      deathScreen:   document.getElementById("death-screen"),
-      levelUpNotif:  document.getElementById("levelup-notif"),
-      startScreen:   document.getElementById("start-screen"),
+      dmgLayer: document.getElementById("damage-layer"),
+      deathScreen: document.getElementById("death-screen"),
+      levelUpNotif: document.getElementById("levelup-notif"),
+      startScreen: document.getElementById("start-screen"),
       attackCoolBar: document.getElementById("attack-cool-fill"),
     };
 
@@ -52,14 +52,14 @@ export class GameUI {
 
   updateStats(stats, attackCooldownFraction = 0) {
     const { hp, maxHp, mp, maxMp, exp, expNext, level, gold } = stats;
-    this._el.hpFill.style.width  = `${(hp / maxHp) * 100}%`;
-    this._el.hpText.textContent  = `${hp} / ${maxHp}`;
-    this._el.mpFill.style.width  = `${(mp / maxMp) * 100}%`;
-    this._el.mpText.textContent  = `${mp} / ${maxMp}`;
+    this._el.hpFill.style.width = `${(hp / maxHp) * 100}%`;
+    this._el.hpText.textContent = `${hp} / ${maxHp}`;
+    this._el.mpFill.style.width = `${(mp / maxMp) * 100}%`;
+    this._el.mpText.textContent = `${mp} / ${maxMp}`;
     this._el.expFill.style.width = `${(exp / expNext) * 100}%`;
     this._el.expText.textContent = `${exp} / ${expNext} EXP`;
     this._el.levelText.textContent = `Lv.${level}`;
-    this._el.goldText.textContent  = `${gold} G`;
+    this._el.goldText.textContent = `${gold} G`;
     this._el.attackCoolBar.style.width = `${(1 - attackCooldownFraction) * 100}%`;
   }
 
@@ -78,7 +78,8 @@ export class GameUI {
   updateMinimap(playerPos, enemies, npcs, items, dayTime) {
     const ctx = this._mapCtx;
     const canvas = this._el.minimap;
-    const W = canvas.width, H = canvas.height;
+    const W = canvas.width;
+    const H = canvas.height;
     const SCALE = W / 200;
 
     ctx.clearRect(0, 0, W, H);
@@ -90,39 +91,59 @@ export class GameUI {
     ctx.strokeStyle = "rgba(255,255,255,0.06)";
     ctx.lineWidth = 0.5;
     for (let i = 1; i < 4; i++) {
-      const x = (i / 4) * W, y = (i / 4) * H;
-      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+      const x = (i / 4) * W;
+      const y = (i / 4) * H;
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, H);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(W, y);
+      ctx.stroke();
     }
 
-    const toMap = (wx, wz) => ({ x: (wx + 100) * SCALE, y: (wz + 100) * SCALE });
+    const toMap = (wx, wz) => ({
+      x: (wx + 100) * SCALE,
+      y: (wz + 100) * SCALE,
+    });
 
     // Items
     for (const item of items) {
       if (item.collected) continue;
       const m = toMap(item.mesh.position.x, item.mesh.position.z);
       ctx.fillStyle = "#44ff88";
-      ctx.beginPath(); ctx.arc(m.x, m.y, 1.5, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath();
+      ctx.arc(m.x, m.y, 1.5, 0, Math.PI * 2);
+      ctx.fill();
     }
     // Enemies
     for (const e of enemies) {
       if (e.isDead) continue;
       const m = toMap(e.mesh.position.x, e.mesh.position.z);
-      ctx.fillStyle = (e.state === "chase" || e.state === "attack") ? "#ff2222" : "#aa4444";
-      ctx.beginPath(); ctx.arc(m.x, m.y, 2.2, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle =
+        e.state === "chase" || e.state === "attack" ? "#ff2222" : "#aa4444";
+      ctx.beginPath();
+      ctx.arc(m.x, m.y, 2.2, 0, Math.PI * 2);
+      ctx.fill();
     }
     // NPCs
     for (const npc of npcs) {
       const m = toMap(npc.mesh.position.x, npc.mesh.position.z);
       ctx.fillStyle = "#ffcc00";
-      ctx.beginPath(); ctx.arc(m.x, m.y, 2.5, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath();
+      ctx.arc(m.x, m.y, 2.5, 0, Math.PI * 2);
+      ctx.fill();
     }
     // Player triangle
     const { x: px, y: py } = toMap(playerPos.x, playerPos.z);
     ctx.fillStyle = "#5599ff";
     ctx.beginPath();
-    ctx.moveTo(px, py - 5.5); ctx.lineTo(px + 4, py + 3.5); ctx.lineTo(px - 4, py + 3.5);
-    ctx.closePath(); ctx.fill();
+    ctx.moveTo(px, py - 5.5);
+    ctx.lineTo(px + 4, py + 3.5);
+    ctx.lineTo(px - 4, py + 3.5);
+    ctx.closePath();
+    ctx.fill();
 
     ctx.strokeStyle = "rgba(255,255,255,0.35)";
     ctx.lineWidth = 1;
@@ -167,7 +188,7 @@ export class GameUI {
     // Randomize horizontal position slightly
     const jitter = (Math.random() - 0.5) * 80;
     el.style.left = `calc(50% + ${jitter}px)`;
-    el.style.top  = isPlayer ? "44%" : "40%";
+    el.style.top = isPlayer ? "44%" : "40%";
     this._el.dmgLayer.appendChild(el);
     setTimeout(() => el.remove(), 1100);
   }
@@ -213,7 +234,7 @@ export class GameUI {
       const accepted = this._dialogPlayer.acceptQuest(quest);
       this.showNotification(
         accepted ? `Quest Accepted: ${quest.name}` : "Quest already tracked.",
-        accepted ? "quest" : "info"
+        accepted ? "quest" : "info",
       );
       this.closeDialog();
     });
@@ -233,22 +254,29 @@ export class GameUI {
       const quest = this._dialogNpc.getQuest();
       const player = this._dialogPlayer;
       if (quest && player) {
-        const hasQuest = player.activeQuests.find((q) => q.id === quest.id)
-                      || player.completedQuests.find((q) => q.id === quest.id);
+        const hasQuest =
+          player.activeQuests.find((q) => q.id === quest.id) ||
+          player.completedQuests.find((q) => q.id === quest.id);
         if (!hasQuest) {
           this._el.dialogQuest.style.display = "block";
-          this._el.dialogQuest.querySelector(".quest-name").textContent  = quest.name;
-          this._el.dialogQuest.querySelector(".quest-desc").textContent  = quest.description;
+          this._el.dialogQuest.querySelector(".quest-name").textContent =
+            quest.name;
+          this._el.dialogQuest.querySelector(".quest-desc").textContent =
+            quest.description;
           const rw = quest.reward;
           const rwParts = [];
           if (rw.gold) rwParts.push(`${rw.gold} Gold`);
-          if (rw.exp)  rwParts.push(`${rw.exp} EXP`);
-          if (rw.items?.length) rwParts.push(rw.items.map((i) => i.name).join(", "));
-          this._el.dialogQuest.querySelector(".quest-reward").textContent = "Reward: " + rwParts.join("  •  ");
+          if (rw.exp) rwParts.push(`${rw.exp} EXP`);
+          if (rw.items?.length)
+            rwParts.push(rw.items.map((i) => i.name).join(", "));
+          this._el.dialogQuest.querySelector(".quest-reward").textContent =
+            `Reward: ${rwParts.join("  •  ")}`;
           this._el.dialogNext.textContent = "Decline";
           this._el.dialogAccept.style.display = "inline-block";
         } else {
-          this._el.dialogText.textContent = player.completedQuests.find((q) => q.id === quest.id)
+          this._el.dialogText.textContent = player.completedQuests.find(
+            (q) => q.id === quest.id,
+          )
             ? "Thank you for your help, adventurer!"
             : "How is the quest going? Keep up the good work!";
           this._el.dialogNext.textContent = "Close";
@@ -280,12 +308,16 @@ export class GameUI {
     this._dialogNpc = null;
   }
 
-  isDialogOpen() { return this._dialogOpen; }
+  isDialogOpen() {
+    return this._dialogOpen;
+  }
 
   // ─── Inventory ──────────────────────────────────────────────────────────────
 
   _setupInventoryClose() {
-    document.getElementById("inventory-close")?.addEventListener("click", () => this.closeInventory());
+    document
+      .getElementById("inventory-close")
+      ?.addEventListener("click", () => this.closeInventory());
   }
 
   openInventory(player) {
@@ -310,7 +342,14 @@ export class GameUI {
 
     // Build item grid (count duplicates)
     const countMap = {};
-    const icons = { herb:"🌿", healthPotion:"❤️", manaPotion:"💙", gold:"💰", ironSword:"⚔️", ironShield:"🛡️" };
+    const icons = {
+      herb: "🌿",
+      healthPotion: "❤️",
+      manaPotion: "💙",
+      gold: "💰",
+      ironSword: "⚔️",
+      ironShield: "🛡️",
+    };
     for (const item of player.inventory) {
       const key = item.name;
       if (!countMap[key]) countMap[key] = { item, count: 0 };
@@ -319,7 +358,9 @@ export class GameUI {
     let html = "";
     for (const { item, count } of Object.values(countMap)) {
       const idx = player.inventory.findIndex((i) => i.name === item.name);
-      const consumable = ["herb","healthPotion","manaPotion"].includes(item.type);
+      const consumable = ["herb", "healthPotion", "manaPotion"].includes(
+        item.type,
+      );
       html += `<div class="inv-slot${consumable ? " consumable" : ""}" data-idx="${idx}" title="${item.name}">
         <div class="inv-icon">${icons[item.type] ?? "⚡"}</div>
         <div class="inv-name">${item.name}</div>
@@ -327,17 +368,18 @@ export class GameUI {
         ${consumable ? `<div class="inv-use">Use</div>` : ""}
       </div>`;
     }
-    if (!html) html = `<div class="inv-empty">Your inventory is empty.<br>Explore to find items!</div>`;
+    if (!html)
+      html = `<div class="inv-empty">Your inventory is empty.<br>Explore to find items!</div>`;
     this._el.invItems.innerHTML = html;
 
     // Use-item click
-    this._el.invItems.querySelectorAll(".consumable").forEach((slot) => {
+    for (const slot of this._el.invItems.querySelectorAll(".consumable")) {
       slot.addEventListener("click", () => {
-        const idx = parseInt(slot.dataset.idx);
+        const idx = Number.parseInt(slot.dataset.idx);
         player.useItem(idx, this);
-        this.openInventory(player); // refresh
+        this.openInventory(player);
       });
-    });
+    }
 
     this._el.inventory.style.display = "flex";
     this._inventoryOpen = true;
@@ -349,10 +391,16 @@ export class GameUI {
     this._inventoryOpen = false;
   }
 
-  isInventoryOpen() { return this._inventoryOpen; }
+  isInventoryOpen() {
+    return this._inventoryOpen;
+  }
 
   // ─── Death screen ───────────────────────────────────────────────────────────
 
-  showDeathScreen() { this._el.deathScreen.style.display = "flex"; }
-  hideDeathScreen() { this._el.deathScreen.style.display = "none"; }
+  showDeathScreen() {
+    this._el.deathScreen.style.display = "flex";
+  }
+  hideDeathScreen() {
+    this._el.deathScreen.style.display = "none";
+  }
 }

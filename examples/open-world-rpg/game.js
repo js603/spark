@@ -1,14 +1,20 @@
-import * as THREE from "three";
 import { SparkRenderer, SplatMesh } from "@sparkjsdev/spark";
+import * as THREE from "three";
+import { getAssetFileURL } from "../js/get-asset-url.js";
+import { Enemy, Item, NPC, createRuins } from "./entities.js";
+import { Player } from "./player.js";
+import { GameUI } from "./ui.js";
 import {
-  createTerrain, createWater, createTrees, createRocks,
-  createVillageStructures, setupEnvironment, updateDayNight,
-  getTerrainHeight, getZoneName,
+  createRocks,
+  createTerrain,
+  createTrees,
+  createVillageStructures,
+  createWater,
+  getTerrainHeight,
+  getZoneName,
+  setupEnvironment,
+  updateDayNight,
 } from "./world.js";
-import { Player }              from "./player.js";
-import { Enemy, NPC, Item, createRuins } from "./entities.js";
-import { GameUI }              from "./ui.js";
-import { getAssetFileURL }     from "../js/get-asset-url.js";
 
 // ─── Renderer + Scene ────────────────────────────────────────────────────────
 
@@ -28,7 +34,12 @@ window.addEventListener("resize", () => {
 });
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 300);
+const camera = new THREE.PerspectiveCamera(
+  70,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  300,
+);
 
 // Spark gaussian-splat renderer
 const spark = new SparkRenderer({ renderer });
@@ -52,19 +63,29 @@ const enemySpawns = [
   // Slimes — near village outskirts
   ...Array.from({ length: 10 }, (_, i) => {
     const a = (i / 10) * Math.PI * 2;
-    return { type: "slime", x: Math.cos(a) * (22 + Math.random() * 14), z: Math.sin(a) * (22 + Math.random() * 14) };
+    return {
+      type: "slime",
+      x: Math.cos(a) * (22 + Math.random() * 14),
+      z: Math.sin(a) * (22 + Math.random() * 14),
+    };
   }),
   // Wolves — dark forest
   ...Array.from({ length: 8 }, () => ({
-    type: "wolf", x: -32 + (Math.random() - 0.5) * 28, z: -28 + (Math.random() - 0.5) * 28,
+    type: "wolf",
+    x: -32 + (Math.random() - 0.5) * 28,
+    z: -28 + (Math.random() - 0.5) * 28,
   })),
   // Skeletons — mountain pass
   ...Array.from({ length: 6 }, () => ({
-    type: "skeleton", x: 44 + (Math.random() - 0.5) * 22, z: -48 + (Math.random() - 0.5) * 22,
+    type: "skeleton",
+    x: 44 + (Math.random() - 0.5) * 22,
+    z: -48 + (Math.random() - 0.5) * 22,
   })),
   // Dark Mages — ancient ruins
   ...Array.from({ length: 5 }, () => ({
-    type: "darkMage", x: -58 + (Math.random() - 0.5) * 18, z: 58 + (Math.random() - 0.5) * 18,
+    type: "darkMage",
+    x: -58 + (Math.random() - 0.5) * 18,
+    z: 58 + (Math.random() - 0.5) * 18,
   })),
 ];
 for (const { type, x, z } of enemySpawns) {
@@ -73,24 +94,41 @@ for (const { type, x, z } of enemySpawns) {
 
 // NPCs
 const npcs = [
-  new NPC(scene, "elder",      new THREE.Vector3(  6,  0,   6)),
-  new NPC(scene, "healer",     new THREE.Vector3( -6,  0,   6)),
-  new NPC(scene, "blacksmith", new THREE.Vector3(  6,  0,  -6)),
-  new NPC(scene, "merchant",   new THREE.Vector3( -6,  0,  -6)),
+  new NPC(scene, "elder", new THREE.Vector3(6, 0, 6)),
+  new NPC(scene, "healer", new THREE.Vector3(-6, 0, 6)),
+  new NPC(scene, "blacksmith", new THREE.Vector3(6, 0, -6)),
+  new NPC(scene, "merchant", new THREE.Vector3(-6, 0, -6)),
 ];
 
 // Items
 const items = [];
-const spawnItem = (type, x, z) => items.push(new Item(scene, type, new THREE.Vector3(x, 0, z)));
+const spawnItem = (type, x, z) =>
+  items.push(new Item(scene, type, new THREE.Vector3(x, 0, z)));
 
 // Herbs — scattered through forest & wilderness
-for (let i = 0; i < 20; i++) spawnItem("herb",  -30 + (Math.random()-0.5)*55, -25 + (Math.random()-0.5)*55);
+for (let i = 0; i < 20; i++)
+  spawnItem(
+    "herb",
+    -30 + (Math.random() - 0.5) * 55,
+    -25 + (Math.random() - 0.5) * 55,
+  );
 // Health potions
-for (let i = 0; i < 8;  i++) spawnItem("healthPotion", (Math.random()-0.5)*70, (Math.random()-0.5)*70);
+for (let i = 0; i < 8; i++)
+  spawnItem(
+    "healthPotion",
+    (Math.random() - 0.5) * 70,
+    (Math.random() - 0.5) * 70,
+  );
 // Mana potions
-for (let i = 0; i < 8;  i++) spawnItem("manaPotion",   (Math.random()-0.5)*70, (Math.random()-0.5)*70);
+for (let i = 0; i < 8; i++)
+  spawnItem(
+    "manaPotion",
+    (Math.random() - 0.5) * 70,
+    (Math.random() - 0.5) * 70,
+  );
 // Gold
-for (let i = 0; i < 14; i++) spawnItem("gold",   (Math.random()-0.5)*85, (Math.random()-0.5)*85);
+for (let i = 0; i < 14; i++)
+  spawnItem("gold", (Math.random() - 0.5) * 85, (Math.random() - 0.5) * 85);
 // Iron Shield near mountains
 spawnItem("ironShield", 48, -52);
 
@@ -121,7 +159,7 @@ document.addEventListener("keydown", (e) => {
     else ui.openInventory(player);
   }
   if (e.code === "Escape") {
-    if (ui.isDialogOpen())    ui.closeDialog();
+    if (ui.isDialogOpen()) ui.closeDialog();
     if (ui.isInventoryOpen()) ui.closeInventory();
   }
 });
@@ -184,7 +222,10 @@ function checkProximity() {
   let nearDist = 4.0;
   for (const npc of npcs) {
     const d = pos.distanceTo(npc.mesh.position);
-    if (d < nearDist) { nearDist = d; nearNPC = npc; }
+    if (d < nearDist) {
+      nearDist = d;
+      nearNPC = npc;
+    }
   }
 
   // Enemy proximity → show attack hint
@@ -193,15 +234,19 @@ function checkProximity() {
   for (const e of enemies) {
     if (e.isDead) continue;
     const d = pos.distanceTo(e.mesh.position);
-    if (d < nearEnemyDist) { nearEnemyDist = d; nearEnemy = e; }
+    if (d < nearEnemyDist) {
+      nearEnemyDist = d;
+      nearEnemy = e;
+    }
   }
 
   if (nearNPC) {
     ui.showPrompt(`[F] Talk to ${nearNPC.name}`);
   } else if (nearEnemy) {
-    const cdLabel = player.attackCooldown > 0
-      ? ` (${player.attackCooldown.toFixed(1)}s)`
-      : "";
+    const cdLabel =
+      player.attackCooldown > 0
+        ? ` (${player.attackCooldown.toFixed(1)}s)`
+        : "";
     ui.showPrompt(`[Click] Attack ${nearEnemy.name}${cdLabel}`);
   } else {
     ui.hidePrompt();
@@ -238,7 +283,8 @@ renderer.setAnimationLoop(function gameLoop(timestamp) {
   if (crystal) {
     crystal.rotation.y += delta * crystalRotSpeed;
     crystal.rotation.x += delta * 0.4;
-    crystal.position.y = getTerrainHeight(-60, 60) + 3.5 + Math.sin(time * 1.5) * 0.3;
+    crystal.position.y =
+      getTerrainHeight(-60, 60) + 3.5 + Math.sin(time * 1.5) * 0.3;
   }
 
   // Day/night

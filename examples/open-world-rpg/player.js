@@ -22,13 +22,19 @@ export class Player {
     this.yawObject.position.set(0, startH, 8);
 
     this.stats = {
-      hp: 100, maxHp: 100,
-      mp: 50, maxMp: 50,
+      hp: 100,
+      maxHp: 100,
+      mp: 50,
+      maxMp: 50,
       level: 1,
-      exp: 0, expNext: 100,
+      exp: 0,
+      expNext: 100,
       gold: 0,
-      atk: 15, def: 5,
-      str: 10, dex: 8, int: 6,
+      atk: 15,
+      def: 5,
+      str: 10,
+      dex: 8,
+      int: 6,
     };
 
     this.inventory = [];
@@ -84,7 +90,10 @@ export class Player {
       if (!this.isPointerLocked) return;
       this._yaw -= e.movementX * MOUSE_SENSITIVITY;
       this._pitch -= e.movementY * MOUSE_SENSITIVITY;
-      this._pitch = Math.max(-Math.PI / 2.2, Math.min(Math.PI / 2.2, this._pitch));
+      this._pitch = Math.max(
+        -Math.PI / 2.2,
+        Math.min(Math.PI / 2.2, this._pitch),
+      );
     });
   }
 
@@ -95,7 +104,8 @@ export class Player {
     this.yawObject.rotation.y = this._yaw;
     this.pitchObject.rotation.x = this._pitch;
 
-    const sprinting = (this.keys["ShiftLeft"] || this.keys["ShiftRight"]) && this.sprintStamina > 0;
+    const sprinting =
+      (this.keys.ShiftLeft || this.keys.ShiftRight) && this.sprintStamina > 0;
     const speed = sprinting ? SPRINT_SPEED : MOVE_SPEED;
 
     if (sprinting) {
@@ -105,10 +115,10 @@ export class Player {
     }
 
     const dir = new THREE.Vector3();
-    if (this.keys["KeyW"] || this.keys["ArrowUp"]) dir.z -= 1;
-    if (this.keys["KeyS"] || this.keys["ArrowDown"]) dir.z += 1;
-    if (this.keys["KeyA"] || this.keys["ArrowLeft"]) dir.x -= 1;
-    if (this.keys["KeyD"] || this.keys["ArrowRight"]) dir.x += 1;
+    if (this.keys.KeyW || this.keys.ArrowUp) dir.z -= 1;
+    if (this.keys.KeyS || this.keys.ArrowDown) dir.z += 1;
+    if (this.keys.KeyA || this.keys.ArrowLeft) dir.x -= 1;
+    if (this.keys.KeyD || this.keys.ArrowRight) dir.x += 1;
 
     if (dir.lengthSq() > 0) {
       dir.normalize().applyEuler(new THREE.Euler(0, this._yaw, 0));
@@ -119,7 +129,7 @@ export class Player {
       this.velocity.z *= 0.8;
     }
 
-    if ((this.keys["Space"]) && this.onGround) {
+    if (this.keys.Space && this.onGround) {
       this.velocity.y = JUMP_SPEED;
       this.onGround = false;
     }
@@ -192,7 +202,10 @@ export class Player {
     for (const e of enemies) {
       if (e.isDead) continue;
       const d = pos.distanceTo(e.mesh.position);
-      if (d < closestDist) { closestDist = d; closest = e; }
+      if (d < closestDist) {
+        closestDist = d;
+        closest = e;
+      }
     }
 
     if (closest) {
@@ -202,11 +215,16 @@ export class Player {
       if (closest.isDead) {
         this.gainExp(closest.expReward);
         this.stats.gold += closest.goldReward;
-        if (ui) ui.showNotification(`+${closest.expReward} EXP  +${closest.goldReward}G`, "exp");
+        if (ui)
+          ui.showNotification(
+            `+${closest.expReward} EXP  +${closest.goldReward}G`,
+            "exp",
+          );
         this._onKill(closest.type);
       }
     } else {
-      if (ui) ui.showNotification("No enemy in range! [Click to attack]", "info");
+      if (ui)
+        ui.showNotification("No enemy in range! [Click to attack]", "info");
     }
     this.attackCooldown = ATTACK_COOLDOWN;
   }
@@ -220,7 +238,8 @@ export class Player {
         item.mesh.visible = false;
         if (item.data.type === "gold") {
           this.stats.gold += item.data.amount ?? 10;
-          if (ui) ui.showNotification(`+${item.data.amount ?? 10} Gold`, "item");
+          if (ui)
+            ui.showNotification(`+${item.data.amount ?? 10} Gold`, "item");
         } else {
           this.inventory.push({ ...item.data });
           this._applyItem(item.data, ui);
@@ -237,7 +256,10 @@ export class Player {
     let closestDist = 3.5;
     for (const npc of npcs) {
       const d = pos.distanceTo(npc.mesh.position);
-      if (d < closestDist) { closestDist = d; closest = npc; }
+      if (d < closestDist) {
+        closestDist = d;
+        closest = npc;
+      }
     }
     if (closest && ui) ui.openDialog(closest, this);
   }
@@ -296,8 +318,9 @@ export class Player {
   }
 
   acceptQuest(quest) {
-    const exists = this.activeQuests.find((q) => q.id === quest.id)
-      || this.completedQuests.find((q) => q.id === quest.id);
+    const exists =
+      this.activeQuests.find((q) => q.id === quest.id) ||
+      this.completedQuests.find((q) => q.id === quest.id);
     if (exists) return false;
     this.activeQuests.push({ ...quest, progress: 0 });
     return true;
@@ -340,7 +363,9 @@ export class Player {
     this.stats.mp = this.stats.maxMp;
     this.stats.atk += 5;
     this.stats.def += 2;
-    this.stats.str += 2; this.stats.dex += 1; this.stats.int += 1;
+    this.stats.str += 2;
+    this.stats.dex += 1;
+    this.stats.int += 1;
     if (this.onLevelUp) this.onLevelUp(this.stats.level);
   }
 

@@ -17,7 +17,12 @@ export function getTerrainHeight(x, z) {
 
 export function createTerrain(scene) {
   const segments = 120;
-  const geo = new THREE.PlaneGeometry(WORLD_SIZE, WORLD_SIZE, segments, segments);
+  const geo = new THREE.PlaneGeometry(
+    WORLD_SIZE,
+    WORLD_SIZE,
+    segments,
+    segments,
+  );
   geo.rotateX(-Math.PI / 2);
 
   const pos = geo.attributes.position;
@@ -29,17 +34,29 @@ export function createTerrain(scene) {
     const h = getTerrainHeight(x, z);
     pos.setY(i, h);
 
-    let r, g, b;
+    let r;
+    let g;
+    let b;
     if (h < WATER_LEVEL + 0.8) {
-      r = 0.5 + Math.random() * 0.05; g = 0.44; b = 0.32; // sandy
+      r = 0.5 + Math.random() * 0.05;
+      g = 0.44;
+      b = 0.32; // sandy
     } else if (h < 2.5) {
-      r = 0.22 + Math.random() * 0.05; g = 0.42 + Math.random() * 0.08; b = 0.13 + Math.random() * 0.04;
+      r = 0.22 + Math.random() * 0.05;
+      g = 0.42 + Math.random() * 0.08;
+      b = 0.13 + Math.random() * 0.04;
     } else if (h < 7) {
-      r = 0.18; g = 0.36; b = 0.1;
+      r = 0.18;
+      g = 0.36;
+      b = 0.1;
     } else {
-      r = 0.48 + Math.random() * 0.08; g = 0.44; b = 0.38;
+      r = 0.48 + Math.random() * 0.08;
+      g = 0.44;
+      b = 0.38;
     }
-    colors[i * 3] = r; colors[i * 3 + 1] = g; colors[i * 3 + 2] = b;
+    colors[i * 3] = r;
+    colors[i * 3 + 1] = g;
+    colors[i * 3 + 2] = b;
   }
 
   geo.setAttribute("color", new THREE.BufferAttribute(colors, 3));
@@ -100,7 +117,7 @@ export function createTrees(scene) {
 
     const trunk = new THREE.Mesh(
       new THREE.CylinderGeometry(0.14, 0.22, height, 6),
-      trunkMat
+      trunkMat,
     );
     trunk.position.y = height / 2;
     trunk.castShadow = true;
@@ -111,7 +128,7 @@ export function createTrees(scene) {
     for (let l = 0; l < layers; l++) {
       const cone = new THREE.Mesh(
         new THREE.ConeGeometry(1.4 - l * 0.3, 1.6 + l * 0.3, 7),
-        leafMat
+        leafMat,
       );
       cone.position.y = height * 0.65 + l * 0.85;
       cone.castShadow = true;
@@ -141,13 +158,13 @@ export function createRocks(scene) {
     const size = 0.25 + Math.random() * 1.4;
     const rock = new THREE.Mesh(
       new THREE.IcosahedronGeometry(size, 0),
-      mats[Math.floor(Math.random() * mats.length)]
+      mats[Math.floor(Math.random() * mats.length)],
     );
     rock.position.set(x, h + size * 0.25, z);
     rock.rotation.set(
       (Math.random() - 0.5) * 0.4,
       Math.random() * Math.PI * 2,
-      (Math.random() - 0.5) * 0.3
+      (Math.random() - 0.5) * 0.3,
     );
     rock.castShadow = true;
     scene.add(rock);
@@ -162,7 +179,10 @@ export function createVillageStructures(scene) {
   const roofMat = new THREE.MeshLambertMaterial({ color: 0x8b3a3a });
 
   const buildings = [
-    { x: -12, z: -8 }, { x: 14, z: -10 }, { x: -14, z: 12 }, { x: 13, z: 14 },
+    { x: -12, z: -8 },
+    { x: 14, z: -10 },
+    { x: -14, z: 12 },
+    { x: 13, z: 14 },
   ];
 
   for (const b of buildings) {
@@ -178,7 +198,7 @@ export function createVillageStructures(scene) {
 
     const roof = new THREE.Mesh(
       new THREE.ConeGeometry(Math.max(w, d) * 0.8, 2, 4),
-      roofMat
+      roofMat,
     );
     roof.position.set(b.x, h + wallH + 0.8, b.z);
     roof.rotation.y = Math.PI / 4;
@@ -189,7 +209,10 @@ export function createVillageStructures(scene) {
   // Village well
   const wellH = getTerrainHeight(0, 14);
   const wellMat = new THREE.MeshLambertMaterial({ color: 0x888888 });
-  const well = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.8, 1.2, 10, 1, true), wellMat);
+  const well = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.8, 0.8, 1.2, 10, 1, true),
+    wellMat,
+  );
   well.position.set(0, wellH + 0.6, 14);
   scene.add(well);
 }
